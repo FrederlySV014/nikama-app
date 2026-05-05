@@ -1,0 +1,66 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nikama_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - ./storage:/var/www/storage
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: nikama_db
+      DB_USERNAME: nikama
+      DB_PASSWORD: NikamaPassword123
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nikama
+
+  webserver:
+    image: nginx:alpine
+    container_name: nikama_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - nikama
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nikama_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nikama_db
+      POSTGRES_USER: nikama
+      POSTGRES_PASSWORD: NikamaPassword123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nikama -d nikama_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nikama
+
+networks:
+  nikama:
+
+volumes:
+  postgres_data:
