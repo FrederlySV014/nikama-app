@@ -43,7 +43,14 @@ COPY . .
 RUN chown -R www-data:www-data /var/www && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Puerto para PHP-FPM
-EXPOSE 9000
+# Instalar nginx
+RUN apk add --no-cache nginx
 
-CMD ["php-fpm"]
+# Configurar nginx
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+
+# Puerto para HTTP
+EXPOSE 80
+
+# Iniciar nginx y php-fpm
+CMD ["sh", "-c", "nginx && php-fpm"]
