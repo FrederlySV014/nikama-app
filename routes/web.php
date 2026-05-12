@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Categoria;
 
 Route::get('/', function () {
+    return 'Nikama Delivery - API funcionando';
+});
+
+Route::get('/home', function () {
     return view('welcome');
 });
 
