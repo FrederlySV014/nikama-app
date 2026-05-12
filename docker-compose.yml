@@ -8,20 +8,14 @@ services:
     working_dir: /var/www
     volumes:
       - .:/var/www
-      - ./storage:/var/www/storage
-      - ./bootstrap/cache:/var/www/bootstrap/cache
+    env_file:
+      - .env
     environment:
       APP_ENV: local
       APP_DEBUG: true
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: nikama_db
-      DB_USERNAME: nikama
-      DB_PASSWORD: NikamaPassword123
-    depends_on:
-      postgres:
-        condition: service_healthy
+      APP_URL: http://localhost:8000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     networks:
       - nikama
 
@@ -33,34 +27,22 @@ services:
       - "8000:80"
     volumes:
       - .:/var/www
-      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
     networks:
       - nikama
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: nikama_postgres
+  # Opcional: Redis para desarrollo local
+  redis:
+    image: redis:7-alpine
+    container_name: nikama_redis
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: nikama_db
-      POSTGRES_USER: nikama
-      POSTGRES_PASSWORD: NikamaPassword123
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nikama -d nikama_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "6379:6379"
     networks:
       - nikama
 
 networks:
   nikama:
-
-volumes:
-  postgres_data:
+    driver: bridge

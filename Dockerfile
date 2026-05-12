@@ -1,6 +1,6 @@
 FROM php:8.4-fpm-alpine
 
-# Dependencias
+# Dependencias del sistema
 RUN apk add --no-cache \
     bash \
     git \
@@ -12,15 +12,38 @@ RUN apk add --no-cache \
     zip \
     unzip
 
-# Extensiones
+# Extensiones PHP
 RUN docker-php-ext-install pdo pdo_pgsql pgsql gd
 
-# Composer
+# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Permisos correctos
-RUN chown -R www-data:www-data /var/www
+# Copiar archivos necesarios para composer install
+COPY composer.json composer.lock ./
+
+# Copiar archivos mínimos para que funcionen los scripts de composer
+COPY artisan ./
+COPY app/ app/
+COPY bootstrap/ bootstrap/
+COPY config/ config/
+COPY routes/ routes/
+
+# Crear directorio necesario para composer
+RUN mkdir -p bootstrap/cache
+
+# Instalar dependencias (sin dev tools para producción)
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Copiar el resto del código
+COPY . .
+
+# Configurar permisos
+RUN chown -R www-data:www-data /var/www && \
+    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Puerto para PHP-FPM
+EXPOSE 9000
 
 CMD ["php-fpm"]
