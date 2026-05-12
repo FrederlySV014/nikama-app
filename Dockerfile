@@ -39,6 +39,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Copiar el resto del código
 COPY . .
 
+# Crear directorios de storage necesarios
+RUN mkdir -p /var/www/storage/framework/views /var/www/storage/framework/sessions /var/www/storage/framework/cache /var/www/storage/logs
+
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache
@@ -51,6 +54,9 @@ COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 
 # Puerto para HTTP
 EXPOSE 80
+
+# Generar cache de Laravel
+RUN php artisan config:cache && php artisan route:cache
 
 # Iniciar nginx y php-fpm
 CMD ["sh", "-c", "nginx && php-fpm"]
