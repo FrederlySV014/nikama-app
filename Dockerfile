@@ -54,9 +54,10 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
 # 8. Optimización Laravel
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
-RUN php artisan view:cache || true
+# (Comentados porque Render inyecta las variables de entorno en tiempo de ejecución, no en el build)
+# RUN php artisan config:cache
+# RUN php artisan route:cache
+# RUN php artisan view:cache
 
 EXPOSE 80
 
