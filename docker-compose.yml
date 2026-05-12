@@ -6,40 +6,21 @@ services:
     container_name: nikama_app
     restart: unless-stopped
     working_dir: /var/www
+
+    ports:
+      - "8000:80"
+
     volumes:
       - .:/var/www
+
     env_file:
       - .env
+
     environment:
       APP_ENV: local
       APP_DEBUG: true
       APP_URL: http://localhost:8000
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    networks:
-      - nikama
 
-  webserver:
-    image: nginx:alpine
-    container_name: nikama_nginx
-    restart: unless-stopped
-    ports:
-      - "8000:80"
-    volumes:
-      - .:/var/www
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - app
-    networks:
-      - nikama
-
-  # Opcional: Redis para desarrollo local
-  redis:
-    image: redis:7-alpine
-    container_name: nikama_redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
     networks:
       - nikama
 

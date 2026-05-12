@@ -20,6 +20,3 @@ docker-compose.yml
 Dockerfile
 README.md
 boost.json
-
-package-lock.json
-package.json
