@@ -55,8 +55,5 @@ COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 # Puerto para HTTP
 EXPOSE 80
 
-# Generar cache de Laravel
-RUN php artisan config:cache && php artisan route:cache
-
 # Iniciar nginx y php-fpm
 CMD ["sh", "-c", "nginx && php-fpm"]
