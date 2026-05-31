@@ -16,7 +16,9 @@ Homestead.yaml
 Homestead.json
 npm-debug.log
 yarn-error.log
-docker-compose.yml
+compose.yaml
+compose.override.yaml
+compose.prod.yaml
 Dockerfile
 README.md
 boost.json

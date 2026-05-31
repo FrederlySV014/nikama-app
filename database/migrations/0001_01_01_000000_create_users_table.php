@@ -12,13 +12,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
+            $table->uuid('id')->primary();
+
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
             $table->string('email')->unique();
+            $table->string('phone', 20)->nullable();
+            $table->string('dni', 10)->nullable()->unique();
+            $table->string('avatar_url')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->string('password')->nullable();
             $table->rememberToken();
+
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('blocked_at')->nullable();
+            $table->timestamp('last_login_at')->nullable();
+
             $table->timestamps();
+            $table->softDeletes();
+            $table->index('is_active');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -29,7 +42,10 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
@@ -47,3 +63,5 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
     }
 };
+
+

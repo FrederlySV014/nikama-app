@@ -1,0 +1,132 @@
+# =============================================================================
+# Nikama — compose.prod.yaml
+# Stack: PHP 8.4 · NGINX 1.30 · Redis 8
+# Base de datos: PostgreSQL en Supabase (externa)
+# Nota: ejecutar con `docker compose -f compose.prod.yaml up -d`
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # NGINX 1.30 stable — HTTPS + HTTP/2 + rate limiting
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/production/nginx/Dockerfile
+
+    env_file: 
+      - .env.production
+    
+    ports:
+      - "80:80"
+    
+    volumes:
+      - ./docker/production/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - laravel-storage-production:/var/www/storage:ro
+      - laravel-public-assets:/var/www/public/build:ro
+
+    networks:
+      - nikama-prod
+    
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+
+  # ---------------------------------------------------------------------------
+  # PHP 8.4 FPM + Supervisord (queue workers + scheduler incluidos)
+  # ---------------------------------------------------------------------------
+  php-fpm:
+    build:
+      context: .
+      dockerfile: ./docker/common/php-fpm/Dockerfile
+      target: production
+    
+    env_file:
+      - .env.production
+    
+    volumes:
+      - laravel-storage-production:/var/www/storage
+      - laravel-public-assets:/var/www/public/build
+      - ./docker/production/php-fpm/supervisord.conf:/etc/supervisord.conf:ro
+    
+    networks:
+      - nikama-prod
+
+    depends_on:
+      redis:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # supervisord gestiona php-fpm + queue workers + scheduler
+    command: ["supervisord", "-n", "-c", "/etc/supervisord.conf"]
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # ---------------------------------------------------------------------------
+  # Redis 8 stable — con persistencia AOF para colas críticas de pedidos
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:8-alpine
+
+    env_file:
+      - .env.production
+    
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+    
+    volumes:
+      - redis-prod-data:/data
+    
+    networks:
+      - nikama-prod
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  nikama-prod:
+    driver: bridge
+
+volumes:
+  laravel-storage-production:
+  laravel-public-assets:
+  redis-prod-data:
