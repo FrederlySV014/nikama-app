@@ -42,21 +42,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /var/www
 
-COPY . .
-
-# Preservar estructura inicial de storage para inicializar volúmenes vacíos en producción
-RUN cp -R storage storage-init
-
+# Copiar archivos de dependencias e instalar primero para usar la caché de capas de Docker
+COPY composer.json composer.lock ./
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# bootstrap/cache no se trackea en git (directorio vacío) — crearlo antes de
-# composer install para que package:discover pueda escribir en él
+# Crear directorios temporales necesarios para scripts de Composer
 RUN mkdir -p bootstrap/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
     storage/logs
 
+# Instalar dependencias sin ejecutar scripts ni generar cargador automático (requieren el resto del código)
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --no-interaction
+
+# Copiar el código del proyecto
+COPY . .
+
+# Preservar estructura inicial de storage para inicializar volúmenes vacíos en producción
+RUN cp -R storage storage-init
+
+# Ejecutar optimización final y scripts post-instalación de Laravel
 RUN composer install \
     --no-dev \
     --prefer-dist \
@@ -106,12 +117,17 @@ COPY --from=builder /var/www \
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+COPY ./docker/production/php-fpm/local.ini /usr/local/etc/php/conf.d/99-local.ini
+
 COPY ./docker/common/php-fpm/conf.d/*.conf \
     /usr/local/etc/php-fpm.d/
 
 WORKDIR /var/www
 
-RUN chown -R www-data:www-data /var/www
+RUN chown -R www-data:www-data /var/www \
+    /var/www/storage-init \
+    /var/www/storage \
+    /var/www/bootstrap/cache
 
 USER www-data
 
@@ -128,6 +144,14 @@ FROM production AS development
 
 USER root
 
+# Declarar argumentos de desarrollo para mapeo de UID/GID con el host
+ARG UID=1000
+ARG GID=1000
+
+# Sincronizar UID/GID de www-data con el Host en desarrollo
+RUN groupmod -g ${GID} www-data || true \
+    && usermod -u ${UID} -g www-data www-data || true
+
 ARG XDEBUG_ENABLED=true
 ARG XDEBUG_MODE=develop,coverage,debug,profile
 ARG XDEBUG_HOST=host.docker.internal
@@ -142,6 +166,8 @@ COPY ./docker/development/php-fpm/entrypoint.sh \
     /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+COPY ./docker/development/php-fpm/local.ini /usr/local/etc/php/conf.d/99-local.ini
 
 USER www-data
 

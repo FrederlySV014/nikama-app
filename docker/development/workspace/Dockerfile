@@ -55,9 +55,10 @@ RUN if [ "${XDEBUG_ENABLED}" = "true" ]; then \
 # Node.js 24 LTS — copiado desde el stage oficial para garantizar la versión exacta
 # (apk add nodejs instala la versión que Alpine tenga empaquetada, que puede no ser 24)
 COPY --from=node-runtime /usr/local/bin/node    /usr/local/bin/node
-COPY --from=node-runtime /usr/local/bin/npm     /usr/local/bin/npm
-COPY --from=node-runtime /usr/local/bin/npx     /usr/local/bin/npx
 COPY --from=node-runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+    && ln -s ../lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

@@ -1,0 +1,52 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('cart_items', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+
+            $table->foreignUuid('cart_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignUuid('business_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignUuid('product_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
+            $table->foreignUuid('product_combo_id')
+                ->nullable()
+                ->constrained('product_combos')
+                ->nullOnDelete();
+
+            $table->unsignedInteger('quantity')->default(1);
+            $table->text('notes')->nullable();
+            $table->decimal('unit_price', 8, 2);
+
+            $table->timestamps();
+
+            $table->index(['cart_id', 'business_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('cart_items');
+    }
+};

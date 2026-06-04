@@ -12,13 +12,13 @@
     --font-sans: 'Inter', 'Outfit', ui-sans-serif, system-ui, sans-serif;
     
     /* Paleta Monkey D. Luffy */
-    --color-luffy-straw: #fcd34d;
-    --color-luffy-straw-hover: #fbbf24;
-    --color-luffy-straw-dark: #b45309;
+    --color-luffy-straw: #facc15;
+    --color-luffy-straw-hover: #eab308;
+    --color-luffy-straw-dark: #a16207;
     
-    --color-luffy-red: #ef4444;
-    --color-luffy-red-hover: #dc2626;
-    --color-luffy-red-dark: #991b1b;
+    --color-luffy-red: #f87171;
+    --color-luffy-red-hover: #ef4444;
+    --color-luffy-red-dark: #b91c1c;
 
     /* Animaciones del logo */
     --animate-pulse-slow: pulse-slow 3s ease-in-out infinite;
@@ -54,6 +54,6 @@
     }
     
     .dark body {
-        @apply bg-slate-900 text-slate-100;
+        @apply bg-gray-950 text-slate-100;
     }
 }

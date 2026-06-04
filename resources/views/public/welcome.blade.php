@@ -15,5 +15,4 @@
     @include('public.welcome.categorias')
     @include('public.welcome.negocios-locales')
     <!-- @include('public.welcome.marcas-populares') -->
-    @include('public.welcome.hero')
 </x-layouts.public>

@@ -17,7 +17,7 @@ Homestead.json
 npm-debug.log
 yarn-error.log
 compose.yaml
-compose.override.yaml
+compose.dev.yaml
 compose.prod.yaml
 Dockerfile
 README.md

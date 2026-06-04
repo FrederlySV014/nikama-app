@@ -11,8 +11,18 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0',
+        origin: 'http://localhost:5173',
+        cors: true,
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            usePolling: true,
+            interval: 1000,
+            ignored: [
+                '**/node_modules/**',
+                '**/vendor/**',
+                '**/storage/**',
+                '**/bootstrap/cache/**',
+            ],
         },
     },
 });
