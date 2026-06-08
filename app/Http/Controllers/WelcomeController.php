@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Business;
 use App\Models\Category;
 use Illuminate\View\View;
 
@@ -19,7 +20,7 @@ class WelcomeController extends Controller
             ->select(['id', 'name', 'slug', 'icon', 'image_url']) // Optimización: sólo cargar campos requeridos
             ->get();
 
-        $businesses = \App\Models\Business::where('status', \App\Models\Business::STATUS_APPROVED)
+        $businesses = Business::where('status', Business::STATUS_APPROVED)
             ->where('is_active', true)
             ->with(['categories' => function ($q) {
                 $q->select(['categories.id', 'categories.name']);

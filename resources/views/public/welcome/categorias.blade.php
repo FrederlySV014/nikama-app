@@ -41,7 +41,7 @@
                             $icon = $categoria->icon;
                             $isSvgPath = $icon && (str_starts_with(trim($icon), 'M') || str_contains($icon, ' '));
                         @endphp
-                        <a href="#{{ $categoria->slug }}" class="flex-shrink-0 group snap-start" data-slug="{{ $categoria->slug }}">
+                        <a href="{{ route('public.category.show', $categoria->url_path) }}" class="flex-shrink-0 group snap-start" data-slug="{{ $categoria->slug }}">
                             <div class="w-32 flex flex-col items-center gap-2 py-3 px-2 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-300 cursor-pointer">
                                 
                                 @if ($categoria->image_url)

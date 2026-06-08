@@ -157,7 +157,7 @@ class AdminApplicationController extends Controller
             'verified_at' => now(),
         ]);
 
-        $driverName = $driverProfile->user ? $driverProfile->user->first_name . ' ' . $driverProfile->user->last_name : 'Repartidor';
+        $driverName = $driverProfile->user ? $driverProfile->user->first_name.' '.$driverProfile->user->last_name : 'Repartidor';
 
         return redirect()
             ->route('admin.applications.driver.show', $driverProfile)
@@ -175,7 +175,7 @@ class AdminApplicationController extends Controller
             'verified_at' => null,
         ]);
 
-        $driverName = $driverProfile->user ? $driverProfile->user->first_name . ' ' . $driverProfile->user->last_name : 'Repartidor';
+        $driverName = $driverProfile->user ? $driverProfile->user->first_name.' '.$driverProfile->user->last_name : 'Repartidor';
 
         return redirect()
             ->route('admin.applications.driver.show', $driverProfile)

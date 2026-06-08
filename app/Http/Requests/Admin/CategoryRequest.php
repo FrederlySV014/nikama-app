@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CategoryRequest extends FormRequest
@@ -17,7 +18,7 @@ class CategoryRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -30,8 +31,8 @@ class CategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:120',
-                'unique:categories,slug,' . ($categoryId ?: 'NULL') . ',id',
-                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'
+                'unique:categories,slug,'.($categoryId ?: 'NULL').',id',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
             ],
             'parent_id' => [
                 'nullable',
@@ -42,7 +43,7 @@ class CategoryRequest extends FormRequest
                     if ($categoryId && $value === $categoryId) {
                         $fail('Una categoría no puede ser su propio padre.');
                     }
-                }
+                },
             ],
             'description' => ['nullable', 'string', 'max:1000'],
             'icon' => ['nullable', 'string', 'max:100'],

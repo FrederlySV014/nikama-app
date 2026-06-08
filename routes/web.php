@@ -1,14 +1,31 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminApplicationController;
+use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\DriverAuthController;
 use App\Http\Controllers\Auth\SellerAuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PublicCategoryController;
+use App\Http\Controllers\PublicProductController;
+use App\Http\Controllers\Seller\SellerProductController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas Públicas / Estáticas
-Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('public.welcome');
+Route::get('/', [WelcomeController::class, 'index'])->name('public.welcome');
+
+Route::get('/categorias/{categoryPath}', [PublicCategoryController::class, 'show'])
+    ->where('categoryPath', '.*')
+    ->name('public.category.show');
+
+Route::get('/productos/{slug}', [PublicProductController::class, 'show'])
+    ->name('public.product.show');
+
+Route::post('/productos/{product}/reviews', [PublicProductController::class, 'storeReview'])
+    ->middleware(['auth'])
+    ->name('public.product.review.store');
 
 Route::get('/about-us', function () {
     return view('public.about-us');
@@ -54,6 +71,10 @@ Route::middleware(['auth', 'role:seller,super_admin', 'approved'])
     ->name('seller.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'seller'])->name('dashboard');
+
+        // Gestión de Productos para Sellers
+        Route::resource('products', SellerProductController::class);
+        Route::post('/products/{product}/toggle', [SellerProductController::class, 'toggleStatus'])->name('products.toggle');
     });
 
 // Rutas de Repartidores (Drivers) - Protegidas por Rol y Aprobación
@@ -72,15 +93,15 @@ Route::middleware(['auth', 'role:super_admin'])
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
         // Gestión de Solicitudes (Aprobaciones)
-        Route::get('/applications', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'index'])->name('applications.index');
-        Route::get('/applications/seller/{business}', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'showSeller'])->name('applications.seller.show');
-        Route::get('/applications/driver/{driverProfile}', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'showDriver'])->name('applications.driver.show');
-        Route::post('/applications/seller/{business}/approve', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'approveSeller'])->name('applications.seller.approve');
-        Route::post('/applications/seller/{business}/reject', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'rejectSeller'])->name('applications.seller.reject');
-        Route::post('/applications/driver/{driverProfile}/approve', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'approveDriver'])->name('applications.driver.approve');
-        Route::post('/applications/driver/{driverProfile}/reject', [\App\Http\Controllers\Admin\AdminApplicationController::class, 'rejectDriver'])->name('applications.driver.reject');
+        Route::get('/applications', [AdminApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/seller/{business}', [AdminApplicationController::class, 'showSeller'])->name('applications.seller.show');
+        Route::get('/applications/driver/{driverProfile}', [AdminApplicationController::class, 'showDriver'])->name('applications.driver.show');
+        Route::post('/applications/seller/{business}/approve', [AdminApplicationController::class, 'approveSeller'])->name('applications.seller.approve');
+        Route::post('/applications/seller/{business}/reject', [AdminApplicationController::class, 'rejectSeller'])->name('applications.seller.reject');
+        Route::post('/applications/driver/{driverProfile}/approve', [AdminApplicationController::class, 'approveDriver'])->name('applications.driver.approve');
+        Route::post('/applications/driver/{driverProfile}/reject', [AdminApplicationController::class, 'rejectDriver'])->name('applications.driver.reject');
 
         // Gestión de Categorías Generales
-        Route::resource('categories', \App\Http\Controllers\Admin\AdminCategoryController::class);
-        Route::post('/categories/{category}/toggle', [\App\Http\Controllers\Admin\AdminCategoryController::class, 'toggleStatus'])->name('categories.toggle');
+        Route::resource('categories', AdminCategoryController::class);
+        Route::post('/categories/{category}/toggle', [AdminCategoryController::class, 'toggleStatus'])->name('categories.toggle');
     });

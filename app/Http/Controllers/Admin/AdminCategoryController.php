@@ -61,7 +61,7 @@ class AdminCategoryController extends Controller
 
         // Si no hay búsqueda o filtros específicos de nivel/padre,
         // por defecto mostramos la estructura híbrida (mostrando raíces primero)
-        if (!$search && $level === 'all' && $parentFilter === 'all') {
+        if (! $search && $level === 'all' && $parentFilter === 'all') {
             // Ordenar por orden personalizado y raíces primero
             $query->orderByRaw('CASE WHEN parent_id IS NULL THEN 0 ELSE 1 END')
                 ->orderBy('sort_order')
@@ -158,7 +158,7 @@ class AdminCategoryController extends Controller
     public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
         $data = $request->validated();
-        
+
         // Validación manual de circularidad adicional por seguridad
         if ($request->filled('parent_id')) {
             $parentId = $request->input('parent_id');
@@ -215,7 +215,7 @@ class AdminCategoryController extends Controller
     public function toggleStatus(Request $request, Category $category): RedirectResponse
     {
         $category->update([
-            'is_active' => !$category->is_active,
+            'is_active' => ! $category->is_active,
         ]);
 
         $estado = $category->is_active ? 'activada' : 'desactivada';
@@ -226,13 +226,12 @@ class AdminCategoryController extends Controller
     /**
      * Obtener los IDs de todos los descendientes de una categoría de forma recursiva.
      *
-     * @param  \App\Models\Category  $category
      * @return array<int, string>
      */
     private function getDescendantIds(Category $category): array
     {
         $ids = [];
-        
+
         // Eager load children to avoid nested queries
         $category->load('children');
 

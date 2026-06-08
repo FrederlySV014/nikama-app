@@ -34,13 +34,13 @@ test('welcome page displays active root categories from database', function () {
     $response = $this->get('/');
 
     $response->assertStatus(200);
-    
+
     // Debe ver el nombre de la categoría activa raíz
     $response->assertSee('Restaurantes');
-    
+
     // NO debe ver el nombre de la categoría inactiva raíz
     $response->assertDontSee('Ferreterías');
-    
+
     // NO debe ver el nombre de la categoría hija
     $response->assertDontSee('Hamburguesas');
 });

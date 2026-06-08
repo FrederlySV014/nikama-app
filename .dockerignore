@@ -22,3 +22,4 @@ compose.prod.yaml
 Dockerfile
 README.md
 boost.json
+public/storage

@@ -105,6 +105,7 @@ class Product extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'product_categories')
+            ->using(ProductCategory::class)
             ->withPivot('sort_order')
             ->withTimestamps();
     }

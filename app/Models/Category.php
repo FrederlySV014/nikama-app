@@ -73,4 +73,34 @@ class Category extends Model
             ->withPivot('sort_order')
             ->withTimestamps();
     }
+
+    /**
+     * Get the category URL path (nested parent-child slugs).
+     */
+    public function getUrlPathAttribute(): string
+    {
+        $path = $this->slug;
+        $parent = $this->parent;
+        while ($parent) {
+            $path = $parent->slug . '/' . $path;
+            $parent = $parent->parent;
+        }
+
+        return $path;
+    }
+
+    /**
+     * Get all descendant category IDs recursively.
+     *
+     * @return array<int, string>
+     */
+    public function getAllDescendantIds(): array
+    {
+        $ids = [$this->id];
+        foreach ($this->children()->where('is_active', true)->get() as $child) {
+            $ids = array_merge($ids, $child->getAllDescendantIds());
+        }
+
+        return $ids;
+    }
 }
