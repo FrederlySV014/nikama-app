@@ -15,7 +15,9 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Security is handled by policies/gate middleware
+        $product = $this->route('product');
+
+        return $product && $this->user()->can('update', $product);
     }
 
     /**

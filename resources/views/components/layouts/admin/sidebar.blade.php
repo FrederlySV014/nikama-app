@@ -6,6 +6,9 @@
         <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2.5 rounded-xl {{ request()->routeIs('admin.dashboard') ? 'bg-slate-900 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white font-medium' }} transition">Dashboard</a>
         <a href="{{ route('admin.applications.index') }}" class="block px-4 py-2.5 rounded-xl {{ request()->routeIs('admin.applications.*') ? 'bg-slate-900 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white font-medium' }} transition">Aprobaciones</a>
         <a href="{{ route('admin.categories.index') }}" class="block px-4 py-2.5 rounded-xl {{ request()->routeIs('admin.categories.*') ? 'bg-slate-900 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white font-medium' }} transition">Categorías</a>
+        <a href="{{ route('admin.products.index') }}" class="block px-4 py-2.5 rounded-xl {{ request()->routeIs('admin.products.*') ? 'bg-slate-900 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white font-medium' }} transition">Productos Oficiales</a>
+        <a href="{{ route('admin.settings.payments.edit') }}" class="block px-4 py-2.5 rounded-xl {{ request()->routeIs('admin.settings.payments.*') ? 'bg-slate-900 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white font-medium' }} transition">Métodos de Pago</a>
+        <a href="{{ route('admin.settings.districts.edit') }}" class="block px-4 py-2.5 rounded-xl {{ request()->routeIs('admin.settings.districts.*') ? 'bg-slate-900 text-white font-bold' : 'text-slate-400 hover:bg-slate-900 hover:text-white font-medium' }} transition">Distritos Cobertura</a>
         <a href="#" class="block px-4 py-2.5 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-white font-medium transition">Usuarios</a>
         <form method="POST" action="{{ route('logout') }}" class="block mt-10">
             @csrf

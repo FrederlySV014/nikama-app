@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Models\Product;
+use App\Models\ProductCombo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -21,7 +22,7 @@ class PublicProductController extends Controller
             ->where('is_available', true)
             ->whereHas('business', function ($q) {
                 $q->where('status', Business::STATUS_APPROVED)
-                  ->where('is_active', true);
+                    ->where('is_active', true);
             })
             ->firstOrFail();
 
@@ -31,9 +32,9 @@ class PublicProductController extends Controller
             'images',
             'reviews' => function ($q) {
                 $q->where('is_visible', true)
-                  ->orderBy('created_at', 'desc')
-                  ->with('user');
-            }
+                    ->orderBy('created_at', 'desc')
+                    ->with('user');
+            },
         ]);
 
         // Fetch up to 4 related products in the same category or business (excluding current product)
@@ -43,19 +44,26 @@ class PublicProductController extends Controller
             ->where('id', '!=', $product->id)
             ->whereHas('business', function ($q) {
                 $q->where('status', Business::STATUS_APPROVED)
-                  ->where('is_active', true);
+                    ->where('is_active', true);
             })
             ->where(function ($query) use ($product, $categoryIds) {
                 $query->where('business_id', $product->business_id)
-                      ->orWhereHas('categories', function ($cq) use ($categoryIds) {
-                          $cq->whereIn('categories.id', $categoryIds);
-                      });
+                    ->orWhereHas('categories', function ($cq) use ($categoryIds) {
+                        $cq->whereIn('categories.id', $categoryIds);
+                    });
             })
             ->with(['business', 'categories'])
             ->limit(4)
             ->get();
 
-        return view('public.products.show', compact('product', 'relatedProducts'));
+        $combos = ProductCombo::where('is_active', true)
+            ->whereHas('products', function ($q) use ($product) {
+                $q->where('products.id', $product->id);
+            })
+            ->with(['business', 'products'])
+            ->get();
+
+        return view('public.products.show', compact('product', 'relatedProducts', 'combos'));
     }
 
     /**

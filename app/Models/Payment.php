@@ -33,6 +33,10 @@ class Payment extends Model
 
     public const METHOD_PLIN = 'plin';
 
+    public const METHOD_BANK_TRANSFER = 'bank_transfer';
+
+    public const METHOD_PAGOEFECTIVO = 'pagoefectivo';
+
     public const PROVIDER_MERCADOPAGO = 'mercadopago';
 
     public const PROVIDER_STRIPE = 'stripe';
@@ -59,6 +63,8 @@ class Payment extends Model
             self::METHOD_CARD,
             self::METHOD_YAPE,
             self::METHOD_PLIN,
+            self::METHOD_BANK_TRANSFER,
+            self::METHOD_PAGOEFECTIVO,
         ];
     }
 

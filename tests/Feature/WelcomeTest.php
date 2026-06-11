@@ -2,6 +2,8 @@
 
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Product;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -99,4 +101,39 @@ test('welcome page displays approved and active businesses from database', funct
     $response->assertDontSee('Bodega Don Pepe');
     $response->assertDontSee('KFC Chiclayo');
     $response->assertDontSee('Tottus Center');
+});
+
+test('welcome page displays featured products from database', function () {
+    $this->seed(RoleSeeder::class);
+
+    // 1. Create a business
+    $business = Business::factory()->create([
+        'business_name' => 'Local Business',
+        'status' => Business::STATUS_APPROVED,
+        'is_active' => true,
+    ]);
+
+    // 2. Create a featured product
+    $featuredProduct = Product::factory()->create([
+        'business_id' => $business->id,
+        'name' => 'Super Cool Featured Product',
+        'status' => Product::STATUS_ACTIVE,
+        'is_available' => true,
+        'is_featured' => true,
+    ]);
+
+    // 3. Create a non-featured product
+    $nonFeaturedProduct = Product::factory()->create([
+        'business_id' => $business->id,
+        'name' => 'Regular Boring Product',
+        'status' => Product::STATUS_ACTIVE,
+        'is_available' => true,
+        'is_featured' => false,
+    ]);
+
+    $response = $this->get('/');
+
+    $response->assertStatus(200)
+        ->assertSee('Super Cool Featured Product')
+        ->assertDontSee('Regular Boring Product');
 });

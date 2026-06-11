@@ -70,12 +70,17 @@
         <a href="#" class="block px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium transition">
             Ofertas
         </a>
-        <a href="#" class="block px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium transition">
+        <a href="{{ route('orders.index') }}" class="block px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium transition">
             Mis Pedidos
         </a>
         <a href="#" class="block px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium transition">
             Favoritos
         </a>
+        @auth
+            <a href="{{ route('profile.addresses.index') }}" class="block px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium transition">
+                Mis Direcciones
+            </a>
+        @endauth
     </nav>
         
     <!-- Footer del menú -->

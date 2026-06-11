@@ -60,6 +60,7 @@ class Category extends Model
     public function businesses(): BelongsToMany
     {
         return $this->belongsToMany(Business::class, 'business_categories')
+            ->using(BusinessCategory::class)
             ->withPivot('is_active', 'sort_order')
             ->withTimestamps();
     }
@@ -70,6 +71,7 @@ class Category extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'product_categories')
+            ->using(ProductCategory::class)
             ->withPivot('sort_order')
             ->withTimestamps();
     }
@@ -82,7 +84,7 @@ class Category extends Model
         $path = $this->slug;
         $parent = $this->parent;
         while ($parent) {
-            $path = $parent->slug . '/' . $path;
+            $path = $parent->slug.'/'.$path;
             $parent = $parent->parent;
         }
 

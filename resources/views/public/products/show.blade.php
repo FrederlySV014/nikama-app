@@ -240,16 +240,166 @@
                         </div>
                     </div>
 
-                    <!-- Marketplace Button Placeholders -->
-                    <div class="space-y-3">
-                        <button class="w-full py-3 bg-luffy-red hover:bg-luffy-red-hover text-white font-bold rounded-2xl text-sm shadow-md shadow-luffy-red/10 transition-colors flex items-center justify-center gap-2 cursor-pointer {{ ($product->track_stock && $product->stock_quantity <= 0 && !$product->allow_backorder) ? 'opacity-50 cursor-not-allowed' : '' }}" {{ ($product->track_stock && $product->stock_quantity <= 0 && !$product->allow_backorder) ? 'disabled' : '' }}>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            Añadir al Carrito
+                    <!-- Marketplace Button Actions -->
+                    <div class="space-y-3" x-data="{ adding: false }">
+                        <button 
+                            @click="
+                                @guest
+                                    window.location.href = '{{ route('login') }}';
+                                @else
+                                    adding = true;
+                                    fetch('{{ route('cart.add') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({ product_id: '{{ $product->id }}', quantity: 1 })
+                                    })
+                                    .then(res => {
+                                        if (res.status === 401) {
+                                            window.location.href = '{{ route('login') }}';
+                                            return null;
+                                        }
+                                        return res.json();
+                                    })
+                                    .then(data => {
+                                        if (data && data.success) {
+                                            window.dispatchEvent(new CustomEvent('cart-updated'));
+                                        }
+                                        adding = false;
+                                    })
+                                    .catch(err => {
+                                        console.error('Error adding to cart:', err);
+                                        adding = false;
+                                    });
+                                @endguest
+                            "
+                            class="w-full py-3 bg-luffy-red hover:bg-luffy-red-hover text-white font-bold rounded-2xl text-sm shadow-md shadow-luffy-red/10 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="adding || {{ ($product->track_stock && $product->stock_quantity <= 0 && !$product->allow_backorder) ? 'true' : 'false' }}"
+                        >
+                            <!-- Spinner / Icon -->
+                            <svg x-show="!adding" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <div x-show="adding" class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" style="display: none;"></div>
+                            
+                            <span x-text="adding ? 'Añadiendo...' : 'Añadir al Carrito'"></span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Section: Combo Promotions -->
+        @if ($combos->isNotEmpty())
+            <div class="space-y-4 pt-8 border-t border-slate-100 dark:border-slate-750">
+                <div class="bg-gradient-to-r from-luffy-straw/10 via-amber-500/5 to-emerald-500/5 dark:from-luffy-straw/5 dark:via-amber-500/5 dark:to-emerald-500/5 border border-luffy-straw/25 dark:border-luffy-straw/15 p-6 sm:p-8 rounded-3xl space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">⚡</span>
+                        <div>
+                            <h3 class="text-lg font-black font-['Outfit'] text-slate-800 dark:text-white">¡Ahorra en Combo!</h3>
+                            <p class="text-xs text-slate-550 dark:text-slate-400 mt-0.5">Llévate este producto como parte de estas increíbles ofertas agrupadas.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @foreach ($combos as $combo)
+                            @php
+                                $originalPrice = $combo->products->sum(function($p) {
+                                    return $p->price * $p->pivot->quantity;
+                                });
+                                $savings = $originalPrice - $combo->price;
+                            @endphp
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-150 dark:border-slate-700/60 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+                                @if ($savings > 0)
+                                    <div class="absolute top-0 right-0 bg-emerald-500 text-white font-black text-[9px] uppercase tracking-wider py-1 px-3 rounded-bl-xl">
+                                        Ahorra S/ {{ number_format($savings, 2) }}
+                                    </div>
+                                @endif
+                                <div>
+                                    <h4 class="font-extrabold text-slate-800 dark:text-white text-sm font-['Outfit'] group-hover:text-amber-500 transition-colors">
+                                        {{ $combo->name }}
+                                    </h4>
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mt-1">
+                                        De: {{ $combo->business->business_name }}
+                                    </span>
+                                    
+                                    <div class="mt-3 space-y-1.5 text-xs text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900/30 p-3 rounded-xl border border-slate-100/50 dark:border-slate-800/40">
+                                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-0.5">Incluye:</span>
+                                        @foreach ($combo->products as $cp)
+                                            <div class="flex items-center gap-1.5 {{ $cp->id === $product->id ? 'text-amber-600 dark:text-amber-400 font-extrabold' : '' }}">
+                                                <span class="font-extrabold text-[9px] bg-emerald-500/10 px-1.5 py-0.5 rounded text-emerald-600 dark:text-emerald-400">{{ $cp->pivot->quantity }}x</span>
+                                                <span class="truncate">{{ $cp->name }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-slate-50 dark:border-slate-750 flex items-center justify-between gap-4">
+                                    <div>
+                                        <span class="text-base font-black text-slate-900 dark:text-white">
+                                            S/ {{ number_format($combo->price, 2) }}
+                                        </span>
+                                        @if ($savings > 0)
+                                            <span class="text-[10px] font-semibold text-slate-400 line-through ml-1.5">
+                                                S/ {{ number_format($originalPrice, 2) }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <button 
+                                        x-data="{ adding: false }"
+                                        @click="
+                                            @guest
+                                                window.location.href = '{{ route('login') }}';
+                                            @else
+                                                adding = true;
+                                                fetch('{{ route('cart.add') }}', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                        'Accept': 'application/json'
+                                                    },
+                                                    body: JSON.stringify({ product_combo_id: '{{ $combo->id }}', quantity: 1 })
+                                                })
+                                                .then(res => {
+                                                    if (res.status === 401) {
+                                                        window.location.href = '{{ route('login') }}';
+                                                        return null;
+                                                    }
+                                                    return res.json();
+                                                })
+                                                .then(data => {
+                                                    if (data && data.success) {
+                                                        window.dispatchEvent(new CustomEvent('cart-updated'));
+                                                    }
+                                                    adding = false;
+                                                })
+                                                .catch(err => {
+                                                    console.error('Error adding combo:', err);
+                                                    adding = false;
+                                                });
+                                            @endguest
+                                        "
+                                        :disabled="adding"
+                                        class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl text-2xs uppercase tracking-wider shadow-sm hover:scale-[1.01] active:scale-[0.99] transition duration-300 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <span x-show="!adding">Comprar Combo</span>
+                                        <span x-show="adding" style="display: none;" class="flex items-center gap-1">
+                                            <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <!-- Section: Related Products -->
         @if ($relatedProducts->isNotEmpty())

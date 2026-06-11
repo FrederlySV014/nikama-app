@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\ProductCombo;
 use Illuminate\View\View;
 
 class WelcomeController extends Controller
@@ -29,6 +31,24 @@ class WelcomeController extends Controller
             ->select(['id', 'business_name', 'slug', 'logo_url'])
             ->get();
 
-        return view('public.welcome', compact('categories', 'businesses'));
+        $combos = ProductCombo::where('is_active', true)
+            ->with(['business', 'products'])
+            ->latest()
+            ->take(8)
+            ->get();
+
+        $featuredProducts = Product::where('status', Product::STATUS_ACTIVE)
+            ->where('is_featured', true)
+            ->where('is_available', true)
+            ->whereHas('business', function ($q) {
+                $q->where('status', Business::STATUS_APPROVED)
+                    ->where('is_active', true);
+            })
+            ->with(['business', 'categories'])
+            ->latest()
+            ->take(50)
+            ->get();
+
+        return view('public.welcome', compact('categories', 'businesses', 'combos', 'featuredProducts'));
     }
 }

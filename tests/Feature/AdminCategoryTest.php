@@ -2,11 +2,11 @@
 
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -248,18 +248,8 @@ test('block deleting category when it has businesses associated', function () {
 
 test('block deleting category when it has products associated', function () {
     $category = Category::factory()->create();
-
-    // Asignar un producto ficticio en la tabla pivote de categorías de productos
-    $productId = fake()->uuid();
-
-    DB::table('product_categories')->insert([
-        'id' => fake()->uuid(),
-        'product_id' => $productId,
-        'category_id' => $category->id,
-        'sort_order' => 0,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+    $product = Product::factory()->create();
+    $product->categories()->attach($category->id);
 
     $response = $this->actingAs($this->admin)
         ->delete(route('admin.categories.destroy', $category));

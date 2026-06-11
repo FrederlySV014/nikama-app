@@ -108,6 +108,7 @@ class Business extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'business_categories')
+            ->using(BusinessCategory::class)
             ->withPivot('is_active', 'sort_order')
             ->withTimestamps();
     }

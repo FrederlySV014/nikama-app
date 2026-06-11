@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,8 +21,6 @@ return new class extends Migration
         });
 
         Schema::create('role_user', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-
             $table->foreignUuid('user_id')
                 ->constrained()
                 ->cascadeOnDelete();
@@ -34,11 +31,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Permite múltiples roles por usuario:
-            $table->unique([
-                'user_id',
-                'role_id',
-            ]);
+            $table->primary(['user_id', 'role_id']);
         });
 
         Schema::create('user_providers', function (Blueprint $table) {

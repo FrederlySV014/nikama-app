@@ -42,10 +42,20 @@
         <!-- 4. Sección de acciones del usuario (visible en >= 768px) -->
         <div class="flex items-center gap-1 md:gap-2 shrink-0 hidden md:flex">
             <!-- Carrito -->
-            <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer" aria-label="Carrito de compras">
+            <button 
+                @click="$dispatch('toggle-cart')"
+                class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer" 
+                aria-label="Carrito de compras"
+            >
                 <svg class="w-5 h-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
+                <span 
+                    x-show="cartCount > 0"
+                    x-text="cartCount"
+                    class="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-rose-500 text-white text-[10px] font-black rounded-full ring-2 ring-white dark:ring-slate-900 animate-pulse"
+                    style="display: none;"
+                ></span>
             </button>
 
             @guest
@@ -78,10 +88,20 @@
         </div>
 
         <!-- Carrito visible solo en < 768px -->
-        <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative md:hidden cursor-pointer" aria-label="Carrito de compras">
+        <button 
+            @click="$dispatch('toggle-cart')"
+            class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors relative md:hidden cursor-pointer" 
+            aria-label="Carrito de compras"
+        >
             <svg class="w-5 h-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
             </svg>
+            <span 
+                x-show="cartCount > 0"
+                x-text="cartCount"
+                class="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-rose-500 text-white text-[10px] font-black rounded-full ring-2 ring-white dark:ring-slate-900 animate-pulse"
+                style="display: none;"
+            ></span>
         </button>
     </div>
 </header>

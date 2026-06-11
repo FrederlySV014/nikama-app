@@ -206,4 +206,24 @@ class Order extends Model
     {
         return $this->hasMany(OrderIssue::class);
     }
+
+    /**
+     * Get the business location for this order based on the first item's business.
+     */
+    public function getBusinessLocation(): ?BusinessLocation
+    {
+        $firstItem = $this->items()->first();
+        if ($firstItem && $firstItem->business) {
+            $location = $firstItem->business->locations()
+                ->where('is_active', true)
+                ->orderByDesc('is_main')
+                ->first();
+
+            if ($location) {
+                return $location;
+            }
+        }
+
+        return null;
+    }
 }
