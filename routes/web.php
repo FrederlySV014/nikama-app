@@ -23,6 +23,7 @@ use App\Http\Controllers\Seller\SellerProductController;
 use App\Http\Controllers\WelcomeController;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
@@ -189,6 +190,14 @@ Route::get('/init-superadmins/{secret_key}', function ($secret_key) {
         abort(403, 'Acceso denegado.');
     }
 
+    // Si no existen roles en la base de datos, corremos el RoleSeeder primero
+    if (Role::count() === 0) {
+        Artisan::call('db:seed', [
+            '--class' => 'Database\Seeders\RoleSeeder',
+            '--force' => true,
+        ]);
+    }
+
     $superAdminRole = Role::where('slug', Role::SUPER_ADMIN)->first();
     if (! $superAdminRole) {
         return response()->json(['error' => 'El rol Super Admin no existe en la base de datos.'], 500);
@@ -197,7 +206,7 @@ Route::get('/init-superadmins/{secret_key}', function ($secret_key) {
     $names = ['Frederly', 'Jose', 'Carlos', 'Anthony'];
     $created = [];
     $skipped = [];
-    $defaultPassword = env('SUPERADMIN_DEFAULT_PASSWORD', 'NikamaSuperAdmin2026!');
+    $defaultPassword = env('SUPERADMIN_DEFAULT_PASSWORD', 'Admin123');
 
     foreach ($names as $name) {
         $email = strtolower($name).'@nikama.com';
