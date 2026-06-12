@@ -21,10 +21,6 @@ use App\Http\Controllers\Seller\SellerComboController;
 use App\Http\Controllers\Seller\SellerOrderController;
 use App\Http\Controllers\Seller\SellerProductController;
 use App\Http\Controllers\WelcomeController;
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 // Rutas Públicas / Estáticas
@@ -183,62 +179,3 @@ Route::middleware(['auth', 'role:super_admin'])
         Route::get('/settings/districts', [AdminDistrictController::class, 'edit'])->name('settings.districts.edit');
         Route::post('/settings/districts', [AdminDistrictController::class, 'update'])->name('settings.districts.update');
     });
-
-// Ruta temporal para crear los 4 superadmins en la capa gratuita de Render
-Route::get('/init-superadmins/{secret_key}', function ($secret_key) {
-    if ($secret_key !== 'UnTokenMuyLargoYSeguro2026') {
-        abort(403, 'Acceso denegado.');
-    }
-
-    // Si no existen roles en la base de datos, corremos el RoleSeeder primero
-    if (Role::count() === 0) {
-        Artisan::call('db:seed', [
-            '--class' => 'Database\Seeders\RoleSeeder',
-            '--force' => true,
-        ]);
-    }
-
-    $superAdminRole = Role::where('slug', Role::SUPER_ADMIN)->first();
-    if (! $superAdminRole) {
-        return response()->json(['error' => 'El rol Super Admin no existe en la base de datos.'], 500);
-    }
-
-    $names = ['Frederly', 'Jose', 'Carlos', 'Anthony'];
-    $created = [];
-    $skipped = [];
-    $defaultPassword = env('SUPERADMIN_DEFAULT_PASSWORD', 'Admin123');
-
-    foreach ($names as $name) {
-        $email = strtolower($name).'@nikama.com';
-        $existingUser = User::where('email', $email)->first();
-
-        if ($existingUser) {
-            if ($existingUser->hasRole(Role::SUPER_ADMIN)) {
-                $skipped[] = "{$name} ({$email}) - Ya es Superadmin";
-
-                continue;
-            }
-            $existingUser->roles()->syncWithoutDetaching([$superAdminRole->id]);
-            $created[] = "{$name} ({$email}) - Rol asignado";
-
-            continue;
-        }
-
-        $user = User::create([
-            'first_name' => $name,
-            'last_name' => 'Admin',
-            'email' => $email,
-            'password' => Hash::make($defaultPassword),
-            'is_active' => true,
-        ]);
-        $user->roles()->attach($superAdminRole);
-        $created[] = "{$name} ({$email}) - Creado con éxito";
-    }
-
-    return response()->json([
-        'message' => 'Inicialización de Superadmins completada.',
-        'creados' => $created,
-        'omitidos' => $skipped,
-        'contrasena_por_defecto' => env('SUPERADMIN_DEFAULT_PASSWORD') ? '[Leída de variables de entorno]' : $defaultPassword,
-    ]);
-});
