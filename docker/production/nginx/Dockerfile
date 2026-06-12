@@ -2,7 +2,7 @@
 # Nikama — Nginx Production Image
 # =============================================================================
 
-FROM node:24-bookworm-slim AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /var/www
 

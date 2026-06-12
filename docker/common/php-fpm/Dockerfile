@@ -8,7 +8,7 @@ ARG PHP_VERSION=8.4
 # ==========================================================
 # Stage 0: Node Builder (Vite Asset Compilation)
 # ==========================================================
-FROM node:24-bookworm-slim AS node-builder
+FROM node:24-alpine AS node-builder
 
 WORKDIR /var/www
 
