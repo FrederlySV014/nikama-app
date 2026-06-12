@@ -141,6 +141,8 @@ COPY ./docker/common/php-fpm/conf.d/*.conf \
 
 COPY ./docker/production/php-fpm/nginx.conf /etc/nginx/nginx.conf
 
+COPY ./docker/production/php-fpm/supervisord.conf /etc/supervisord.conf
+
 WORKDIR /var/www
 
 RUN chown -R www-data:www-data /var/www \
