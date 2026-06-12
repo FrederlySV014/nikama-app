@@ -109,7 +109,8 @@ RUN apt-get update \
         libfcgi-bin \
         procps \
         supervisor \
-    && mkdir -p /var/log/supervisor \
+        nginx \
+    && mkdir -p /var/log/supervisor /var/log/nginx /var/lib/nginx /var/run/nginx \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -138,6 +139,8 @@ COPY ./docker/production/php-fpm/local.ini /usr/local/etc/php/conf.d/99-local.in
 COPY ./docker/common/php-fpm/conf.d/*.conf \
     /usr/local/etc/php-fpm.d/
 
+COPY ./docker/production/php-fpm/nginx.conf /etc/nginx/nginx.conf
+
 WORKDIR /var/www
 
 RUN chown -R www-data:www-data /var/www \
@@ -145,10 +148,11 @@ RUN chown -R www-data:www-data /var/www \
     /var/www/storage \
     /var/www/bootstrap/cache
 
-USER www-data
+# USER www-data (comentado porque Nginx debe arrancar como root para usar el puerto 80)
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
+EXPOSE 80
 EXPOSE 9000
 
 CMD ["php-fpm"]

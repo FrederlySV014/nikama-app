@@ -36,5 +36,9 @@ php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 
+# Ensure correct ownership of storage and cache directories
+# -----------------------------------------------------------
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
 # Run the default command
 exec "$@"
