@@ -14,6 +14,10 @@ fi
 # Remove storage-init directory
 rm -rf /var/www/storage-init
 
+# Crear enlace simbólico de almacenamiento público
+echo "Creating storage symlink..."
+php artisan storage:link --force
+
 # Run Laravel migrations
 # -----------------------------------------------------------
 # Ensure the database schema is up to date.

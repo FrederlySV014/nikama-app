@@ -6,6 +6,19 @@
 ARG PHP_VERSION=8.4
 
 # ==========================================================
+# Stage 0: Node Builder (Vite Asset Compilation)
+# ==========================================================
+FROM node:24-bookworm-slim AS node-builder
+
+WORKDIR /var/www
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# ==========================================================
 # Stage 1: Builder
 # ==========================================================
 FROM php:${PHP_VERSION}-fpm AS builder
@@ -63,6 +76,9 @@ RUN composer install \
 
 # Copiar el código del proyecto
 COPY . .
+
+# Copiar activos de Vite compilados en la etapa de node-builder
+COPY --from=node-builder /var/www/public/build ./public/build
 
 # Preservar estructura inicial de storage para inicializar volúmenes vacíos en producción
 RUN cp -R storage storage-init
