@@ -195,3 +195,5 @@ USER www-data
 # Stage 4: Default Production Target (for Render and platforms without --target)
 # ==========================================================
 FROM production AS default-production
+
+CMD ["supervisord", "-n", "-c", "/etc/supervisord.conf"]
