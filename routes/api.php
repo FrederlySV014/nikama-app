@@ -72,5 +72,33 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/history', [DriverOrderController::class, 'history']);
         });
+
+        // Seller routes (must be seller and approved)
+        Route::middleware(['role:seller,super_admin', 'approved'])->prefix('seller')->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Api\V1\Seller\SellerDashboardController::class, 'index']);
+            Route::get('/orders', [\App\Http\Controllers\Api\V1\Seller\SellerDashboardController::class, 'orders']);
+            Route::post('/orders/{order}/status', [\App\Http\Controllers\Api\V1\Seller\SellerOrderController::class, 'updateStatus']);
+            Route::post('/orders/{order}/assign-driver', [\App\Http\Controllers\Api\V1\Seller\SellerOrderController::class, 'assignDriver']);
+            Route::get('/products', [\App\Http\Controllers\Api\V1\Seller\SellerProductController::class, 'index']);
+            Route::post('/products/{product}/toggle', [\App\Http\Controllers\Api\V1\Seller\SellerProductController::class, 'toggleStatus']);
+        });
+
+        // Admin routes (must be super_admin)
+        Route::middleware(['role:super_admin'])->prefix('admin')->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Api\V1\Admin\AdminDashboardController::class, 'index']);
+            
+            // Applications
+            Route::get('/drivers', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'drivers']);
+            Route::get('/businesses', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'businesses']);
+            
+            // Approvals
+            Route::post('/applications/driver/{driverProfile}/approve', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'approveDriver']);
+            Route::post('/applications/driver/{driverProfile}/reject', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'rejectDriver']);
+            Route::post('/applications/business/{business}/approve', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'approveBusiness']);
+            Route::post('/applications/business/{business}/reject', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'rejectBusiness']);
+            
+            // Toggle
+            Route::post('/businesses/{business}/toggle', [\App\Http\Controllers\Api\V1\Admin\AdminApplicationController::class, 'toggleBusiness']);
+        });
     });
 });

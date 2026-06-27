@@ -1,0 +1,64 @@
+name: nikama_app_movil
+description: "Nikama - Plataforma de delivery y marketplace para Peru"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Cliente HTTP con interceptores para Bearer Token
+  dio: ^5.9.2
+
+  # Almacenamiento seguro del token (keystore/keychain)
+  flutter_secure_storage: ^10.3.1
+
+  # Preferencias compartidas (onboarding, configuraciones ligeras)
+  shared_preferences: ^2.5.5
+
+  # Gestión de estado con ChangeNotifier / Provider
+  provider: ^6.1.2
+
+  # Google Fonts (Inter para diseño premium)
+  google_fonts: ^6.2.1
+
+  # Iconos personalizados y animaciones
+  flutter_svg: ^2.0.10+1
+
+  # Animaciones suaves (lottie para splash/loading)
+  lottie: ^3.1.2
+
+  # Cached network images con placeholder
+  cached_network_image: ^3.4.1
+
+  # Shimmer loading effect
+  shimmer: ^3.0.0
+
+  # Snackbars y toasts personalizados
+  fluttertoast: ^8.2.9
+
+  # Geolocalización para driver
+  geolocator: ^13.0.4
+
+  # URL launcher para WhatsApp/Web links
+  url_launcher: ^6.3.1
+
+  # Formateo de fechas
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
