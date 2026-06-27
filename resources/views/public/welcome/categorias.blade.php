@@ -46,7 +46,7 @@
                                 
                                 @if ($categoria->image_url)
                                     <!-- Renderizar Imagen subida por el Super Admin -->
-                                    <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-md group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 border border-slate-100 dark:border-slate-800">
+                                    <div class="w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-all duration-300">
                                         <img src="{{ $categoria->image_url }}" alt="{{ $categoria->name }}" class="w-full h-full object-cover">
                                     </div>
                                 @else

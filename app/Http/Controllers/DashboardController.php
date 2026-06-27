@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Business;
 use App\Models\Delivery;
 use App\Models\DriverAssignment;
+use App\Models\DriverProfile;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -143,7 +145,49 @@ class DashboardController extends Controller
      */
     public function admin(): View
     {
-        return view('admin.dashboard');
+        $pendingSellersCount = Business::where('status', Business::STATUS_PENDING)->count();
+        $pendingDriversCount = DriverProfile::where('status', DriverProfile::STATUS_PENDING)->count();
+        $totalApprovedSellers = Business::where('status', Business::STATUS_APPROVED)->count();
+        $totalActiveDrivers = DriverProfile::where('status', DriverProfile::STATUS_ACTIVE)->count();
+
+        return view('admin.dashboard', compact(
+            'pendingSellersCount',
+            'pendingDriversCount',
+            'totalApprovedSellers',
+            'totalActiveDrivers'
+        ));
+    }
+
+    /**
+     * Obtener el listado en tiempo real de solicitudes de vendedores y conductores pendientes de aprobación.
+     */
+    public function adminPendingApplications(): JsonResponse
+    {
+        $pendingSellers = Business::where('status', Business::STATUS_PENDING)
+            ->with('users')
+            ->get()
+            ->map(fn ($b) => [
+                'id' => $b->id,
+                'business_name' => $b->business_name,
+                'owner_name' => $b->users->first() ? $b->users->first()->first_name.' '.$b->users->first()->last_name : 'N/A',
+            ]);
+
+        $pendingDrivers = DriverProfile::where('status', DriverProfile::STATUS_PENDING)
+            ->with('user')
+            ->get()
+            ->map(fn ($d) => [
+                'id' => $d->id,
+                'name' => $d->user ? $d->user->first_name.' '.$d->user->last_name : 'N/A',
+            ]);
+
+        return response()->json([
+            'sellers' => $pendingSellers,
+            'drivers' => $pendingDrivers,
+            'pending_sellers_count' => $pendingSellers->count(),
+            'pending_drivers_count' => $pendingDrivers->count(),
+            'active_sellers_count' => Business::where('status', Business::STATUS_APPROVED)->count(),
+            'active_drivers_count' => DriverProfile::where('status', DriverProfile::STATUS_ACTIVE)->count(),
+        ]);
     }
 
     /**

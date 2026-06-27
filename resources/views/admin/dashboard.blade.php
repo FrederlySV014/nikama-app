@@ -10,22 +10,22 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
                 <span class="text-slate-400 text-sm font-bold uppercase tracking-wider block">Socios Pendientes</span>
-                <span class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">0</span>
+                <span id="admin-pending-sellers-count" class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">{{ $pendingSellersCount }}</span>
             </div>
             
             <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
                 <span class="text-slate-400 text-sm font-bold uppercase tracking-wider block">Repartidores Pendientes</span>
-                <span class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">0</span>
+                <span id="admin-pending-drivers-count" class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">{{ $pendingDriversCount }}</span>
             </div>
 
             <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
                 <span class="text-slate-400 text-sm font-bold uppercase tracking-wider block">Negocios Activos</span>
-                <span class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">0</span>
+                <span id="admin-active-sellers-count" class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">{{ $totalApprovedSellers }}</span>
             </div>
 
             <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
                 <span class="text-slate-400 text-sm font-bold uppercase tracking-wider block">Conductores Activos</span>
-                <span class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">0</span>
+                <span id="admin-active-drivers-count" class="text-4xl font-extrabold font-['Outfit'] text-slate-800 dark:text-white block mt-2">{{ $totalActiveDrivers }}</span>
             </div>
         </div>
     </div>

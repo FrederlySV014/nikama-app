@@ -1,10 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminApplicationController;
+use App\Http\Controllers\Admin\AdminBusinessController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminDistrictController;
+use App\Http\Controllers\Admin\AdminFinancialController;
+use App\Http\Controllers\Admin\AdminMarketingController;
 use App\Http\Controllers\Admin\AdminPaymentSettingsController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminSystemSettingsController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\DriverAuthController;
@@ -152,6 +157,7 @@ Route::middleware(['auth', 'role:super_admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+        Route::get('/dashboard/pending-applications', [DashboardController::class, 'adminPendingApplications'])->name('dashboard.pending-applications');
 
         // Gestión de Solicitudes (Aprobaciones)
         Route::get('/applications', [AdminApplicationController::class, 'index'])->name('applications.index');
@@ -178,4 +184,41 @@ Route::middleware(['auth', 'role:super_admin'])
         // Configuración de Distritos de Cobertura
         Route::get('/settings/districts', [AdminDistrictController::class, 'edit'])->name('settings.districts.edit');
         Route::post('/settings/districts', [AdminDistrictController::class, 'update'])->name('settings.districts.update');
+
+        // Gestión de Usuarios
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('users.toggle-status');
+
+        // Gestión de Negocios
+        Route::get('/businesses', [AdminBusinessController::class, 'index'])->name('businesses.index');
+        Route::get('/businesses/{business}', [AdminBusinessController::class, 'show'])->name('businesses.show');
+        Route::post('/businesses/{business}/toggle-active', [AdminBusinessController::class, 'toggleActive'])->name('businesses.toggle-active');
+        Route::post('/businesses/{business}/toggle-featured', [AdminBusinessController::class, 'toggleFeatured'])->name('businesses.toggle-featured');
+        Route::post('/businesses/{business}/toggle-accepts-orders', [AdminBusinessController::class, 'toggleAcceptsOrders'])->name('businesses.toggle-accepts-orders');
+        Route::post('/businesses/{business}/toggle-suspension', [AdminBusinessController::class, 'toggleSuspension'])->name('businesses.toggle-suspension');
+
+        // Módulo Financiero
+        Route::get('/financial/payouts', [AdminFinancialController::class, 'payouts'])->name('financial.payouts');
+        Route::post('/financial/payouts/{type}/{id}/process', [AdminFinancialController::class, 'processPayout'])->name('financial.payouts.process');
+        Route::get('/financial/commissions', [AdminFinancialController::class, 'commissions'])->name('financial.commissions');
+        Route::post('/financial/commissions', [AdminFinancialController::class, 'storeCommission'])->name('financial.commissions.store');
+        Route::post('/financial/commissions/{commission}/toggle', [AdminFinancialController::class, 'toggleCommissionStatus'])->name('financial.commissions.toggle');
+        Route::get('/financial/transactions', [AdminFinancialController::class, 'walletTransactions'])->name('financial.transactions');
+
+        // Módulo de Marketing
+        Route::get('/marketing/banners', [AdminMarketingController::class, 'banners'])->name('marketing.banners');
+        Route::post('/marketing/banners', [AdminMarketingController::class, 'storeBanner'])->name('marketing.banners.store');
+        Route::post('/marketing/banners/{banner}/toggle', [AdminMarketingController::class, 'toggleBannerStatus'])->name('marketing.banners.toggle');
+        Route::put('/marketing/banners/{banner}', [AdminMarketingController::class, 'updateBanner'])->name('marketing.banners.update');
+        Route::delete('/marketing/banners/{banner}', [AdminMarketingController::class, 'destroyBanner'])->name('marketing.banners.destroy');
+        Route::get('/marketing/discounts', [AdminMarketingController::class, 'discounts'])->name('marketing.discounts');
+        Route::post('/marketing/discounts', [AdminMarketingController::class, 'storeDiscount'])->name('marketing.discounts.store');
+        Route::post('/marketing/discounts/{discount}/toggle', [AdminMarketingController::class, 'toggleDiscountStatus'])->name('marketing.discounts.toggle');
+        Route::put('/marketing/discounts/{discount}', [AdminMarketingController::class, 'updateDiscount'])->name('marketing.discounts.update');
+        Route::delete('/marketing/discounts/{discount}', [AdminMarketingController::class, 'destroyDiscount'])->name('marketing.discounts.destroy');
+
+        // Módulo de Configuración y Auditoría
+        Route::get('/system/settings', [AdminSystemSettingsController::class, 'edit'])->name('system.settings.edit');
+        Route::post('/system/settings', [AdminSystemSettingsController::class, 'update'])->name('system.settings.update');
+        Route::get('/system/audit-logs', [AdminSystemSettingsController::class, 'auditLogs'])->name('system.audit-logs');
     });
